@@ -4,6 +4,7 @@ export const RANDOM_PROCESS_ID: string = "1dnDvaDRQ7Ao6o1ohTr7NNrN5mp1CpsXFrWm3J
 export const RANDAO_STAKING_TOKEN_PROCESS_ID: string = RNG_TOKEN_PROCESS_ID
 export const RANDAO_STAKING_PROCESS_ID: string = "EIQJoqVWonlxsEe8xGpQZhh54wrmgE3q0tAsVIhKYQU"
 export const RANDAO_PROFILE_PROCESS_ID: string = RANDAO_STAKING_PROCESS_ID
+export const RAFFLE_PROCESS_ID = "0zuEwuXXnNBPQ6u-eUTGfMkKbSy1zeHKfxbiocvD_y0"
 
 export const STAKING_PROCESS_ID: string = "EIQJoqVWonlxsEe8xGpQZhh54wrmgE3q0tAsVIhKYQU"
 export const STAKING_TOKEN_PROCESS_ID: string = RNG_TOKEN_PROCESS_ID

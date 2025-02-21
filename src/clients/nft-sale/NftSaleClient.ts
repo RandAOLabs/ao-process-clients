@@ -28,8 +28,7 @@ export class NftSaleClient extends ASyncInitClient implements INftSaleClient {
         super(config);
         const tokenConfig: TokenClientConfig = {
             processId: config.tokenProcessId,
-            wallet: config.wallet,
-            environment: config.environment
+            wallet: config.wallet
         };
         this.tokenClient = new TokenClient(tokenConfig);
         this.profileClient = profileClient;

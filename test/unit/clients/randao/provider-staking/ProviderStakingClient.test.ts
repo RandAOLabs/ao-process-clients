@@ -36,6 +36,7 @@ jest.mock("src/clients/token/TokenClient", () => {
 describe("ProviderStakingClient", () => {
     let client: ProviderStakingClient;
     let mockTokenClient: jest.Mocked<TokenClient>;
+    Logger.setLogLevel(LogLevel.NONE)
     // Logger.setLogLevel(LogLevel.DEBUG)
     beforeEach(() => {
         jest.clearAllMocks();

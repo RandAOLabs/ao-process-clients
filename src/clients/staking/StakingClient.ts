@@ -23,8 +23,7 @@ export class StakingClient extends BaseClient implements IStakingClient {
         super(stakingConfig);
         const tokenConfig: TokenClientConfig = {
             processId: stakingConfig.tokenProcessId,
-            wallet: stakingConfig.wallet,
-            environment: stakingConfig.environment
+            wallet: stakingConfig.wallet
         };
         this.tokenClient = new TokenClient(tokenConfig);
     }

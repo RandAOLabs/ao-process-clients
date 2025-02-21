@@ -25,8 +25,7 @@ export class RandomClient extends ASyncInitClient implements IRandomClient {
         super(randomConfig)
         const tokenConfig: TokenClientConfig = {
             processId: randomConfig.tokenProcessId,
-            wallet: randomConfig.wallet,
-            environment: randomConfig.environment
+            wallet: randomConfig.wallet
         }
         this.tokenClient = new TokenClient(tokenConfig)
     }

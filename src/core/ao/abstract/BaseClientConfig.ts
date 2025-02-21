@@ -17,10 +17,4 @@ export interface BaseClientConfig {
      * @remarks Use getWalletLazy utility to get the proper wallet in browser or node environments
      */
     wallet: JWKInterface | any;
-
-    /**
-     * The environment to connect to.
-     * @deprecated Will be removed in next major update
-     */
-    environment: 'local' | 'mainnet';
 }

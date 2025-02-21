@@ -36,15 +36,17 @@ export class Logger {
         [LogLevel.DEBUG]: colors.fg.green,
     };
 
-    private static formatMessage(message: string | any): string {
-        if (typeof message === 'string') {
-            return message;
-        }
-        try {
-            return JSON.stringify(message, null, 2);
-        } catch (error) {
-            return String(message);
-        }
+    private static formatMessages(...messages: any[]): string {
+        return messages.map(message => {
+            if (typeof message === 'string') {
+                return message;
+            }
+            try {
+                return JSON.stringify(message, null, 2);
+            } catch (error) {
+                return String(message);
+            }
+        }).join(' ');
     }
 
     private static shouldLog(level: LogLevel): boolean {
@@ -57,12 +59,12 @@ export class Logger {
         return messageLevelIndex <= currentLevelIndex;
     }
 
-    static log(level: LogLevel, message: string | any) {
+    static log(level: LogLevel, ...messages: any[]) {
         if (!this.shouldLog(level)) {
             return;
         }
 
-        const formattedMessage = this.formatMessage(message);
+        const formattedMessage = this.formatMessages(...messages);
         const color = this.logLevelColors[level] || colors.reset;
         const timestamp = new Date().toISOString();
         const fileLink = this.getFileLink();
@@ -76,20 +78,20 @@ export class Logger {
         }
     }
 
-    static info(message: string | any) {
-        this.log(LogLevel.INFO, message);
+    static info(...messages: any[]) {
+        this.log(LogLevel.INFO, ...messages);
     }
 
-    static warn(message: string | any) {
-        this.log(LogLevel.WARN, message);
+    static warn(...messages: any[]) {
+        this.log(LogLevel.WARN, ...messages);
     }
 
-    static error(message: string | any) {
-        this.log(LogLevel.ERROR, message);
+    static error(...messages: any[]) {
+        this.log(LogLevel.ERROR, ...messages);
     }
 
-    static debug(message: string | any) {
-        this.log(LogLevel.DEBUG, message);
+    static debug(...messages: any[]) {
+        this.log(LogLevel.DEBUG, ...messages);
     }
 
     static setLogLevel(newLoglevel: LogLevel) {

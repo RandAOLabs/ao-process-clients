@@ -56,8 +56,7 @@ describe("StakingClient Unit Test", () => {
         const config: StakingClientConfig = {
             tokenProcessId: "Testing Token",
             processId: "Testing Staking Process ID",
-            wallet: getWallet(),
-            environment: "local"
+            wallet: getWallet()
         }
         client = new StakingClient(config);
 
