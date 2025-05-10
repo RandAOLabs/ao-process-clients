@@ -3,5 +3,5 @@
  */
 export * from './abstract'
 export * from './PIOracleClient'
-export * from './PIOracleClientBuilder'
-export * from './types'
+export * from './PIOracleClientError'
+export * from './PIOracleProcessError'

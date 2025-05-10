@@ -11,7 +11,7 @@ describe("RandomClient Unit Tests", () => {
 		mockBaseClient = new MockBaseClient();
 		client = RandomClient.builder()
 			.withProcessId("test-process-id")
-			.withToken("test-token-process-id")
+			.withTokenProcessId("test-token-process-id")
 			.build()
 		mockBaseClient.bindToClient(client);
 	});

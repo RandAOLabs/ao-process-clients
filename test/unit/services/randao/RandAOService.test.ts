@@ -26,7 +26,15 @@ describe("RandAOService", () => {
 		};
 
 		// Setup mock clients
-		mockRandomClient = new RandomClient({ ...mockConfig, tokenProcessId: "test-token" }) as jest.Mocked<RandomClient>;
+		mockRandomClient = new RandomClient({ 
+			...mockConfig, 
+			tokenProcessId: "test-token",
+			tokenAOConfig: {
+				MODE: 'legacy',
+				GRAPHQL_URL: "https://test",
+				MU_URL: "https://test"
+			}
+		}) as jest.Mocked<RandomClient>;
 		mockProviderProfileClient = new ProviderProfileClient(mockConfig) as jest.Mocked<ProviderProfileClient>;
 
 		// Create mock aggregator through its static method

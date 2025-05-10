@@ -12,6 +12,7 @@ export const ACTION_INFO = 'Info';
 export const ACTION_GET_DELEGATIONS = 'Get-Delegations';
 export const ACTION_SET_DELEGATION = 'Set-Delegation';
 export const ACTION_GET_YIELD_TICK_HISTORY = 'Get-Yield-Tick-History';
+export const ACTION_TICK_HISTORY = 'Tick-History';
 export const ACTION_GET_FLPS = 'Get-FLPs';
 export const ACTION_BALANCE = 'Balance';
 export const ACTION_GET_CLAIMABLE_BALANCE = 'Get-Claimable-Balance';

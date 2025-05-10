@@ -2,9 +2,11 @@ import { InputValidationError } from "../bazar";
 import { TokenInterfacingClientConfig } from "./TokenInterfacingClientConfig";
 import { BaseClientConfigBuilder } from "../../core/ao/configuration/builder";
 import { IBuilder } from "../../utils/class-interfaces/IBuilder";
+import { ConnectArgsLegacy } from "../../core/ao/ao-client/aoconnect-types";
 
 export class TokenInterfacingClientConfigBuilder extends BaseClientConfigBuilder implements IBuilder<TokenInterfacingClientConfig> {
     private tokenProcessId?: string
+    private tokenAOConfig?: ConnectArgsLegacy
 
     // ==========================================
     // Interface Methods (IBuilder)
@@ -20,7 +22,8 @@ export class TokenInterfacingClientConfigBuilder extends BaseClientConfigBuilder
             ...baseConfig,
             // Since cacheConfig is optional in DryRunCachingClientConfig,
             // we only include it if it's defined
-            tokenProcessId: this.tokenProcessId!
+            tokenProcessId: this.tokenProcessId!,
+            tokenAOConfig: this.tokenAOConfig!
         };
     }
 
@@ -61,6 +64,15 @@ export class TokenInterfacingClientConfigBuilder extends BaseClientConfigBuilder
      */
     withTokenProcessId(tokenProcessId: string): this {
         this.tokenProcessId = tokenProcessId
+        return this;
+    }
+    /**
+     * Sets the aoConfig.
+     * @param aoConfig The aoConfig options
+     * @returns The builder instance for method chaining
+     */
+    withTokenAOConfig(aoConfig: ConnectArgsLegacy): this {
+        this.tokenAOConfig = aoConfig
         return this;
     }
 }

@@ -35,7 +35,8 @@ export class ProviderStakingClient extends StakingClient implements IProviderSta
 		return new TokenInterfacingClientBuilder(ProviderStakingClient)
 			.withProcessId(PROCESS_IDS.RANDAO.STAKING)
 			.withAOConfig(AO_CONFIGURATIONS.RANDAO)
-			.withToken(PROCESS_IDS.RANDAO.STAKING_TOKEN, AO_CONFIGURATIONS.RANDAO)
+			.withTokenProcessId(PROCESS_IDS.RANDAO.STAKING_TOKEN)
+			.withTokenAOConfig(AO_CONFIGURATIONS.RANDAO)
 	}
 	/**
 	 * @inheritdoc

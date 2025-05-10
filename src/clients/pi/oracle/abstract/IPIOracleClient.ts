@@ -12,6 +12,7 @@ export interface PIToken {
     process: string;
     status: string;
     treasury?: string;
+    name?: string;
     
     // Legacy fields for backward compatibility
     flp_id?: string;

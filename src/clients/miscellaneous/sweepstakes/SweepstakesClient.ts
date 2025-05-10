@@ -29,9 +29,9 @@ import { IClassBuilder } from "../../../utils/class-interfaces/IClientBuilder";
 export class SweepstakesClient extends BaseClient implements ISweepstakesClient {
 	
 	readonly tokenClient: TokenClient;
-	// TODO 
 	public constructor(sweepstakesConfig: SweepstakesClientConfig) {
 		super(sweepstakesConfig);
+		
 		const tokenConfig: TokenClientConfig = {
 			processId: sweepstakesConfig.tokenProcessId,
 			wallet: sweepstakesConfig.wallet,
@@ -61,11 +61,11 @@ export class SweepstakesClient extends BaseClient implements ISweepstakesClient 
 	 * @see {@link IDefaultBuilder.defaultBuilder} 
 	 */
 	public static async defaultBuilder(): Promise<TokenInterfacingClientBuilder<SweepstakesClient>> {
-		const sweepstakesProcessId = PROCESS_IDS.MISCELLANEOUS.SWEEPSTAKES
-		// Use the new withToken method that can accept token process ID and/or AO config
 		return SweepstakesClient.builder()
-			.withProcessId(sweepstakesProcessId)
-			.withToken(PROCESS_IDS.MISCELLANEOUS.SWEEPSTAKES_TOKEN, AO_CONFIGURATIONS.FORWARD_RESEARCH)
+			.withProcessId(PROCESS_IDS.MISCELLANEOUS.SWEEPSTAKES)
+			.withAOConfig(AO_CONFIGURATIONS.RANDAO)
+			.withTokenProcessId(PROCESS_IDS.MISCELLANEOUS.SWEEPSTAKES_TOKEN)
+			.withTokenAOConfig(AO_CONFIGURATIONS.FORWARD_RESEARCH)
 	}
 
 	async registerSweepstakes(entrants: string[], details: string): Promise<boolean> {

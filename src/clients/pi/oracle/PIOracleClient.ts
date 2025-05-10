@@ -1,7 +1,6 @@
 import { DryRunResult } from "@permaweb/aoconnect/dist/lib/dryrun";
 import { BaseClient } from "../../../core/ao/BaseClient";
-import { BaseClientConfig } from "../../../core/ao/configuration/BaseClientConfig";
-import { ClientError } from "../../common/ClientError";
+import { Tags } from "../../../core/common";
 import { IPIOracleClient, PIToken } from "./abstract/IPIOracleClient";
 import { 
     ACTION_GET_FLPS, 
@@ -9,36 +8,25 @@ import {
     DELEGATION_ORACLE_PROCESS_ID
 } from "../constants";
 import { PITokenClient } from "../PIToken/PITokenClient";
-import { PITokenClientBuilder } from "../PIToken/PITokenClientBuilder";
 import { AOToken } from "../../tokens/AOTokenClient";
 import { TokenClient } from "../../ao";
+import { PIOracleClientError } from "./PIOracleClientError";
+import { PIOracleProcessError } from "./PIOracleProcessError";
+import { AO_CONFIGURATIONS } from "../../../core/ao/ao-client/configurations";
+import { IAutoconfiguration, IDefaultBuilder, staticImplements } from "../../../utils";
 import { ClientBuilder } from "../../common";
+import { IClassBuilder } from "../../../utils/class-interfaces/IClientBuilder";
 
 /**
  * Client for interacting with the PI Oracle process.
  * The Oracle provides information about all available PI tokens.
  * @category Autonomous Finance
  */
+@staticImplements<IAutoconfiguration>()
+@staticImplements<IDefaultBuilder>()
+@staticImplements<IClassBuilder>()
 export class PIOracleClient extends BaseClient implements IPIOracleClient {
     private readonly TIMEOUT_MS = 15000; // 15 second timeout for operations
-	
-	/** 
-	 * {@inheritdoc IAutoconfiguration.autoConfiguration}
-	 * @see {@link IAutoconfiguration.autoConfiguration} 
-	 */
-	public static autoConfiguration(): PIOracleClient {
-		return PIOracleClient.defaultBuilder()
-			.build()
-	}
-
-	/** 
-	 * {@inheritdoc IDefaultBuilder.defaultBuilder}
-	 * @see {@link IDefaultBuilder.defaultBuilder} 
-	 */
-	public static defaultBuilder(): ClientBuilder<PIOracleClient> {
-		return new ClientBuilder(PIOracleClient)
-			.withProcessId(DELEGATION_ORACLE_PROCESS_ID)
-	}
 
     /**
      * Gets information about the PI Oracle process.
@@ -56,7 +44,7 @@ export class PIOracleClient extends BaseClient implements IPIOracleClient {
             
             return result;
         } catch (error: any) {
-            throw new ClientError(this, this.getInfo, {}, error);
+            throw new PIOracleClientError(this, this.getInfo, {}, error);
         }
     }
     
@@ -78,7 +66,7 @@ export class PIOracleClient extends BaseClient implements IPIOracleClient {
             const dataString = response.Messages[0].Data;
             return dataString;
         } catch (error: any) {
-            throw new ClientError(this, this.getPITokens, {}, error);
+            throw new PIOracleClientError(this, this.getPITokens, {}, error);
         }
     }
 
@@ -158,7 +146,7 @@ export class PIOracleClient extends BaseClient implements IPIOracleClient {
             
             return tokensMap;
         } catch (error: any) {
-            throw new ClientError(this, this.getTokensMap, {}, error);
+            throw new PIOracleClientError(this, this.getTokensMap, {}, error);
         }
     }
 
@@ -167,15 +155,20 @@ export class PIOracleClient extends BaseClient implements IPIOracleClient {
      * @param processId The process ID of the token to create a client for
      * @returns A configured PITokenClient
      */
+    /**
+     * Helper method to get the AO configuration
+     * @returns The current AO configuration or a default
+     */
+    private getAOConfig() {
+        return this.baseConfig.aoConfig;
+    }
+
     public createTokenClient(processId: string): PITokenClient {
-        // Create a copy of the current config but change the process ID
-        const config: BaseClientConfig = {
-            ...this.baseConfig,
-            processId: processId
-        };
-        
-        // Return a new PITokenClient with the specified token process ID
-        return new PITokenClient(config);
+        // Use the builder pattern to create a new PITokenClient
+        return PITokenClient.builder()
+            .withProcessId(processId)
+            .withAOConfig(this.getAOConfig() || AO_CONFIGURATIONS.RANDAO)
+            .build();
     }
     
     /**
@@ -201,7 +194,7 @@ export class PIOracleClient extends BaseClient implements IPIOracleClient {
             
             return tokenClients;
         } catch (error: any) {
-            throw new ClientError(this, this.createTokenClients, {}, error);
+            throw new PIOracleClientError(this, this.createTokenClients, {}, error);
         }
     }
 
@@ -231,7 +224,7 @@ export class PIOracleClient extends BaseClient implements IPIOracleClient {
             
             return tokenClients;
         } catch (error: any) {
-            throw new ClientError(this, this.createTokenClientsArray, {}, error);
+            throw new PIOracleClientError(this, this.createTokenClientsArray, {}, error);
         }
     }
     
@@ -259,15 +252,15 @@ export class PIOracleClient extends BaseClient implements IPIOracleClient {
                 // Only create clients if we have both ID and process
                 if (ticker && id && processId) {
                     // Create PITokenClient using the ID field
-                    const piTokenClient = new PITokenClient({
-                        ...this.baseConfig,
-                        processId: id
-                    });
+                    const piTokenClient = PITokenClient.builder()
+                        .withProcessId(id)
+                        .withAOConfig(this.getAOConfig() || AO_CONFIGURATIONS.RANDAO)
+                        .build();
                     
                     // Create AOToken using the process field and propagate AO config
                     const baseTokenClient = AOToken.defaultBuilder()
                         .withProcessId(processId)
-                        .withAOConfig(this.baseConfig.aoConfig)
+                        .withAOConfig(this.getAOConfig() || AO_CONFIGURATIONS.RANDAO)
                         .build();
                     
                     // Add the pair to the map
@@ -277,7 +270,7 @@ export class PIOracleClient extends BaseClient implements IPIOracleClient {
             
             return tokenClientPairs;
         } catch (error: any) {
-            throw new ClientError(this, this.createTokenClientPairs, {}, error);
+            throw new PIOracleClientError(this, this.createTokenClientPairs, {}, error);
         }
     }
     
@@ -303,15 +296,15 @@ export class PIOracleClient extends BaseClient implements IPIOracleClient {
                 // Only create clients if we have both ID and process
                 if (id && processId) {
                     // Create PITokenClient using the ID field
-                    const piTokenClient = new PITokenClient({
-                        ...this.baseConfig,
-                        processId: id
-                    });
+                    const piTokenClient = PITokenClient.builder()
+                        .withProcessId(id)
+                        .withAOConfig(this.getAOConfig() || AO_CONFIGURATIONS.RANDAO)
+                        .build();
                     
                     // Create AOToken using the process field and propagate AO config
                     const baseTokenClient = AOToken.defaultBuilder()
                         .withProcessId(processId)
-                        .withAOConfig(this.baseConfig.aoConfig)
+                        .withAOConfig(this.getAOConfig() || AO_CONFIGURATIONS.RANDAO)
                         .build();
                     
                     // Add the pair to the array
@@ -321,7 +314,7 @@ export class PIOracleClient extends BaseClient implements IPIOracleClient {
             
             return tokenClientPairs;
         } catch (error: any) {
-            throw new ClientError(this, this.createTokenClientPairsArray, {}, error);
+            throw new PIOracleClientError(this, this.createTokenClientPairsArray, {}, error);
         }
     }
 
@@ -339,5 +332,71 @@ export class PIOracleClient extends BaseClient implements IPIOracleClient {
                 setTimeout(() => reject(new Error(errorMessage)), timeoutMs);
             })
         ]);
+    }
+
+    /**
+     * Check if the result contains any error tags from the process
+     * @param result The result to check for errors
+     * @private
+     */
+    private checkResultForErrors(result: DryRunResult) {
+        for (let msg of result.Messages) {
+            const tags: Tags = msg.Tags;
+            for (let tag of tags) {
+                if (tag.name == "Error") {
+                    throw new PIOracleProcessError(`Error originating in process: ${this.getProcessId()}`)
+                }
+            }
+        }
+    }
+
+    /**
+     * {@inheritdoc IAutoconfiguration.autoConfiguration}
+     * @see {@link IAutoconfiguration.autoConfiguration} 
+     */
+    public static async autoConfiguration(): Promise<PIOracleClient> {
+        const builder = await PIOracleClient.defaultBuilder();
+        return builder.build();
+    }
+
+    /**
+     * Create a new builder instance for PIOracleClient
+     * @returns A new builder instance
+     */
+    public static builder(): ClientBuilder<PIOracleClient> {
+        return new ClientBuilder(PIOracleClient);
+    }
+
+    /** 
+     * {@inheritdoc IDefaultBuilder.defaultBuilder}
+     * @see {@link IDefaultBuilder.defaultBuilder} 
+     */
+    public static async defaultBuilder(): Promise<ClientBuilder<PIOracleClient>> {
+        return PIOracleClient.builder()
+            .withProcessId(DELEGATION_ORACLE_PROCESS_ID)
+            .withAOConfig(AO_CONFIGURATIONS.RANDAO);
+    }
+
+    /**
+     * Static method to easily build a default Oracle client
+     * @param cuUrl Optional Compute Unit URL to override the default
+     * @returns A configured PIOracleClient instance
+     */
+    public static build(cuUrl?: string): PIOracleClient {
+        const builder = PIOracleClient.builder()
+            .withProcessId(DELEGATION_ORACLE_PROCESS_ID);
+        
+        // Override the CU URL if provided
+        if (cuUrl) {
+            builder.withAOConfig({
+                MODE: 'legacy',
+                CU_URL: cuUrl
+            } as any);
+        } else {
+            // Ensure we always have a valid AOConfig
+            builder.withAOConfig(AO_CONFIGURATIONS.RANDAO);
+        }
+        
+        return builder.build();
     }
 }

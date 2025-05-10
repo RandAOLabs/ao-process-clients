@@ -1,3 +1,4 @@
+import { ConnectArgsLegacy } from "src/core/ao/ao-client/aoconnect-types";
 import { BaseClientConfig, BaseClientConfigBuilder } from "../../core";
 import { BaseClient } from "../../core/ao/BaseClient";
 import { IBuilder } from "../../utils/class-interfaces/IBuilder";
@@ -36,7 +37,7 @@ export class ClientBuilder<T extends BaseClient> implements IBuilder<T> {
 		return this;
 	}
 
-	withAOConfig(aoConfig: any): this {
+	withAOConfig(aoConfig: ConnectArgsLegacy): this {
 		this.configBuilder.withAOConfig(aoConfig);
 		return this;
 	}

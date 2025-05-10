@@ -57,7 +57,12 @@ describe("StakingClient Unit Test", () => {
         const config: StakingClientConfig = {
             tokenProcessId: "Testing Token",
             processId: "Testing Staking Process ID",
-            wallet: getWallet()
+            wallet: getWallet(),
+            tokenAOConfig: {
+                MODE: 'legacy',
+                GRAPHQL_URL: "https://test",
+                MU_URL: "https://test"
+            }
         }
         client = new StakingClient(config);
 

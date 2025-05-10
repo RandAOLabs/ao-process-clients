@@ -1,6 +1,6 @@
 import { BaseClient } from "../../core/ao/BaseClient";
 import { IBuilder } from "../../utils/class-interfaces/IBuilder";
-import { TokenInterfacingClientConfig, TokenInput } from "./TokenInterfacingClientConfig";
+import { TokenInterfacingClientConfig } from "./TokenInterfacingClientConfig";
 import { TokenInterfacingClientConfigBuilder } from ".";
 import { ConnectArgsLegacy } from "../../core/ao/ao-client/aoconnect-types";
 
@@ -38,43 +38,20 @@ export class TokenInterfacingClientBuilder<T extends BaseClient> implements IBui
 		return this;
 	}
 
-	withAOConfig(aoConfig: any): this {
+	withAOConfig(aoConfig: ConnectArgsLegacy): this {
 		this.configBuilder.withAOConfig(aoConfig);
 		return this;
 	}
 
-	/**
-	 * Sets the token configuration with processId and/or aoConfig.
-	 * This method replaces the previous withTokenProcessId method and allows setting either
-	 * or both the token process ID and AO configuration.
-	 * 
-	 * @param tokenProcessIdOrConfig Token process ID string or object with tokenProcessId property
-	 * @param aoConfig Optional AO configuration for the token
-	 * @returns The builder instance for method chaining
-	 */
-	withToken(input: TokenInput, maybeAOConfig?: ConnectArgsLegacy): this {
-		let tokenProcessId: string | undefined;
-		let aoConfig: ConnectArgsLegacy | undefined;
-	  
-		if (typeof input === 'string') {
-		  tokenProcessId = input;
-		  aoConfig = maybeAOConfig;
-		} else if (typeof input === 'object' && input !== null) {
-		  tokenProcessId = input.tokenProcessId;
-		  aoConfig = input.aoConfig;
-		}
-	  
-		if (tokenProcessId) {
-		  this.configBuilder.withTokenProcessId(tokenProcessId);
-		}
-	  
-		if (aoConfig) {
-		  this.configBuilder.withAOConfig(aoConfig);
-		}
-	  
+	withTokenProcessId(processId: string): this {
+		this.configBuilder.withTokenProcessId(processId);
 		return this;
-	  }
+	}
 
+	withTokenAOConfig(aoConfig: ConnectArgsLegacy): this {
+		this.configBuilder.withTokenAOConfig(aoConfig);
+		return this;
+	}
 
 	/**
 	 * Sets the retries enabled to a specific value, defaults to false.

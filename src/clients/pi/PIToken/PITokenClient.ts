@@ -1,19 +1,29 @@
 import { DryRunResult } from "@permaweb/aoconnect/dist/lib/dryrun";
 import { BaseClient } from "../../../core/ao/BaseClient";
 import { Tags } from "../../../core/common";
-import { ClientError } from "../../common/ClientError";
 import { 
     ACTION_BALANCE,
     ACTION_GET_CLAIMABLE_BALANCE,
     ACTION_GET_YIELD_TICK_HISTORY,
+    ACTION_TICK_HISTORY,
     ACTION_INFO,
+    PI_TOKEN_PROCESS_ID
 } from "../constants";
 import { IPITokenClient, TickHistoryEntry } from "./abstract/IPITokenClient";
+import { PITokenClientError } from "./PITokenClientError";
+import { PITokenProcessError } from "./PITokenProcessError";
+import { AO_CONFIGURATIONS } from "../../../core/ao/ao-client/configurations";
+import { IAutoconfiguration, IDefaultBuilder, staticImplements } from "../../../utils";
+import { ClientBuilder } from "../../common";
+import { IClassBuilder } from "../../../utils/class-interfaces/IClientBuilder";
 
 /**
  * Client for interacting with a specific PI token process.
  * @category Autonomous Finance
  */
+@staticImplements<IAutoconfiguration>()
+@staticImplements<IDefaultBuilder>()
+@staticImplements<IClassBuilder>()
 export class PITokenClient extends BaseClient implements IPITokenClient {
     /**
      * Gets information about the PI token process.
@@ -25,7 +35,7 @@ export class PITokenClient extends BaseClient implements IPITokenClient {
                 { name: "Action", value: ACTION_INFO }
             ]);
         } catch (error: any) {
-            throw new ClientError(this, this.getInfo, {}, error);
+            throw new PITokenClientError(this, this.getInfo, {}, error);
         }
     }
     
@@ -40,7 +50,7 @@ export class PITokenClient extends BaseClient implements IPITokenClient {
             console.log(`[PITokenClient] Sending dryrun with Action: ${ACTION_GET_YIELD_TICK_HISTORY}`);
             
             const response = await this.dryrun('', [
-                { name: "Action", value: ACTION_GET_YIELD_TICK_HISTORY }
+                { name: "Action", value: ACTION_TICK_HISTORY }
             ]);
             
             // Log the complete response for debugging
@@ -300,5 +310,69 @@ export class PITokenClient extends BaseClient implements IPITokenClient {
             // Instead of throwing, return zero
             return '0';
         }
+    }
+
+    /**
+     * Check if the result contains any error tags from the process
+     * @param result The result to check for errors
+     * @private
+     */
+    private checkResultForErrors(result: DryRunResult) {
+        for (let msg of result.Messages) {
+            const tags: Tags = msg.Tags;
+            for (let tag of tags) {
+                if (tag.name == "Error") {
+                    throw new PITokenProcessError(`Error originating in process: ${this.getProcessId()}`)
+                }
+            }
+        }
+    }
+
+    /**
+     * {@inheritdoc IAutoconfiguration.autoConfiguration}
+     * @see {@link IAutoconfiguration.autoConfiguration} 
+     */
+    public static async autoConfiguration(): Promise<PITokenClient> {
+        const builder = await PITokenClient.defaultBuilder();
+        return builder.build();
+    }
+
+    /**
+     * Create a new builder instance for PITokenClient
+     * @returns A new builder instance
+     */
+    public static builder(): ClientBuilder<PITokenClient> {
+        return new ClientBuilder(PITokenClient);
+    }
+
+    /** 
+     * {@inheritdoc IDefaultBuilder.defaultBuilder}
+     * @see {@link IDefaultBuilder.defaultBuilder} 
+     */
+    public static async defaultBuilder(): Promise<ClientBuilder<PITokenClient>> {
+        return PITokenClient.builder()
+            .withProcessId(PI_TOKEN_PROCESS_ID)
+            .withAOConfig(AO_CONFIGURATIONS.RANDAO);
+    }
+
+    /**
+     * Static method to easily build a PIToken client with optional CU URL override
+     * @param processId The PI Token process ID
+     * @param cuUrl Optional Compute Unit URL to override the default
+     * @returns A configured PITokenClient instance
+     */
+    public static build(processId: string, cuUrl?: string): PITokenClient {
+        const builder = PITokenClient.builder()
+            .withProcessId(processId);
+        
+        // Override the CU URL if provided
+        if (cuUrl) {
+            builder.withAOConfig({
+                MODE: 'legacy',
+                CU_URL: cuUrl
+            });
+        }
+        
+        return builder.build();
     }
 }
